@@ -22,6 +22,24 @@
               border-radius:10px;}
       p{text-indent:2em;}
       .zoom:hover{transform:scale(1.5);cursor:pointer;}
+
+      img:hover{animation : glowcolors 1.2s infinite alternate;}
+      @keyframes glowcolors{
+        0% { box-shadow: 0 0 40px lightpink;}
+        25% { box-shadow: 0 0 40px skyblue;}
+        50% { box-shadow: 0 0 40px gold;}
+        75% { box-shadow: 0 0 40px violet;}
+        100% { box-shadow: 0 0 40px red;}}
+
+      .blink-bg{
+        animation : blinkbg 1s infinite alternat;
+        padding : 3px 6 px;
+      }
+      @keyframes blinkbg{
+        0%{background:yellow;}
+        100%{background : orange;}
+      }
+      
       header{background:linear-gradient(white,lightpink,skyblue,white);padding :30px;text-aliign:center;border-radius:10px}
     </style> 
     <title>ประวัติ</title>
