@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ประวัติส่วนตัว</title>
+    <style>
+        * {margin: 0; 
+           padding: 0; 
+           box-sizing: border-box; }
+        
+        body {font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #ffd9e8 0%, #e8d4f8 50%, #d4e8f8 100%);
+            min-height: 100vh;
+            padding: 20px; }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #ffc0e0 0%, #e0d4f8 50%, #d4e8f8 100%);
+            padding: 40px 20px;
+            text-align: center;
+            position: relative;
+            min-height: 300px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .header-title {
+            font-size: 48px;
+            color: #4a5f8f;
+            margin-bottom: 20px;
+            font-weight: bold;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        
+        .profile-name {
+            font-size: 32px;
+            color: #2d3e5f;
+            margin: 10px 0;
+            font-weight: 600;
+        }
+        
+        .profile-info {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            padding: 40px;
+            background: #f0f8ff;
+        }
+        
+        .info-item {
+            padding: 15px;
+            background: white;
+            border-radius: 10px;
+            border-left: 4px solid #ff69b4;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+        
+        .info-label {
+            font-weight: bold;
+            color: #2d3e5f;
+            margin-bottom: 5px;
+            font-size: 14px;
+        }
+        
+        .info-value {
+            color: #555;
+            font-size: 16px;
+        }
+        
+        .section {
+            padding: 40px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        
+        .section:last-child {
+            border-bottom: none;
+        }
+        
+        .section-title {
+            font-size: 28px;
+            color: #2d3e5f;
+            margin-bottom: 20px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .activity-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+        }
+        
+        .activity-item {
+            padding: 15px;
+            background: #fff0f5;
+            border-radius: 8px;
+            border: 2px solid #ffb6d9;
+            text-align: center;
+            font-weight: 500;
+            color: #2d3e5f;
+            transition: all 0.3s ease;
+        }
+        
+        .activity-item:hover {
+            background: #ffe0ec;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(255, 105, 180, 0.2);
+        }
+        
+        .website-links {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .website-link {
+            padding: 20px;
+            background: linear-gradient(135deg, #ffe0ec 0%, #e0f0ff 100%);
+            border-radius: 10px;
+            text-align: center;
+            text-decoration: none;
+            color: #2d3e5f;
+            font-weight: 600;
+            border: 2px solid #ffb6d9;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .website-link:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 20px rgba(255, 105, 180, 0.3);
+        }
+        
+        .social-links {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin: 30px 0;
+            flex-wrap: wrap;
+        }
+        
+        .social-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .social-icon:hover {
+            transform: scale(1.2) rotate(10deg);
+        }
+        
+        .address-info {
+            background: #f0f8ff;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            color: #2d3e5f;
+            line-height: 1.8;
+        }
+        
+        .address-title {
+            font-weight: bold;
+            font-size: 18px;
+            margin-bottom: 10px;
+            color: #ff1493;
+        }
+        
+        @media (max-width: 768px) {
+            .profile-info {
+                grid-template-columns: 1fr;
+            }
+            
+            .header-title {
+                font-size: 36px;
+            }
+            
+            .profile-name {
+                font-size: 24px;
+            }
+            
+            .activity-list {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header Section -->
+        <div class="header">
+            <div class="header-title">ประวัติส่วนตัว💛</div>
+            <div class="profile-name">ด.ช. สมตุ๋ย คุยโว้</div>
+        </div>
+        
+        <!-- Profile Information -->
+        <div class="profile-info">
+            <div class="info-item">
+                <div class="info-label">ชื่อเล่น</div>
+                <div class="info-value">ตุ๋ย</div>
+            </div>
+            
+            <div class="info-item">
+                <div class="info-label">อายุ</div>
+                <div class="info-value">15 ปี</div>
+            </div>
+            
+            <div class="info-item">
+                <div class="info-label">โรงเรียน</div>
+                <div class="info-value">โรงเรียนสวนกุหลาบวิทยาลัย 🌹</div>
+            </div>
+            
+            <div class="info-item">
+                <div class="info-label">ชั้น</div>
+                <div class="info-value">มัธยมศึกษาปีที่ 2 ห้อง 212</div>
+            </div>
+            
+            <div class="info-item">
+                <div class="info-label">ครูประจำชั้น</div>
+                <div class="info-value">นายอุงคุง อังคัง 💖</div>
+            </div>
+            
+            <div class="info-item">
+                <div class="info-label">สิ่งที่ชอบทำ</div>
+                <div class="info-value">เล่นเกม</div>
+            </div>
+            
+            <div class="info-item">
+                <div class="info-label">สิ่งที่อยากเป็น</div>
+                <div class="info-value">วิศวะกร</div>
+            </div>
+            
+            <div class="info-item">
+                <div class="info-label">สีที่ชอบ</div>
+                <div class="info-value">ชมพู ฟ้า</div>
+            </div>
+            
+            <div class="info-item">
+                <div class="info-label">ผลไม้ที่ชอบ</div>
+                <div class="info-value">ทุเรียน แตงไทย</div>
+            </div>
+            
+            <div class="info-item">
+                <div class="info-label">เครื่องดื่มที่ชอบ</div>
+                <div class="info-value">ชานมไข่มุก</div>
+            </div>
+            
+            <div class="info-item">
+                <div class="info-label">Facebook</div>
+                <div class="info-value">ใบบุญ ใบหนาด</div>
+            </div>
+            
+            <div class="info-item">
+                <div class="info-label">เบอร์โทร</div>
+                <div class="info-value">085-5555-666</div>
+            </div>
+        </div>
+        
+        <!-- Activities Section -->
+        <div class="section">
+            <div class="section-title">🌻 กิจกรรมระดับ ม.2 ของฉัน 🥰</div>
+            <div class="activity-list">
+                <div class="activity-item">กิจกรรมเปิดเทอม</div>
+                <div class="activity-item">กิจกรรมวันปีใหม่</div>
+                <div class="activity-item">กิจกรรมวิทยาศาสตร์</div>
+                <div class="activity-item">กิจกรรมวันจตุรมิตร</div>
+                <div class="activity-item">กิจกรรมสมานมิตร</div>
+                <div class="activity-item">กิจกรรมลูกเสือ</div>
+                <div class="activity-item">กิจกรรมวันครู</div>
+                <div class="activity-item">กิจกรรมวันปิยมหาราช</div>
+            </div>
+        </div>
+        
+        <!-- Website Works Section -->
+        <div class="section">
+            <div class="section-title">ผลงานเว็บไซต์ของฉัน 😘</div>
+            <div style="text-align: center; margin-bottom: 20px; color: #2d3e5f; font-weight: 500;">
+                กดปุ่มเพื่อชมเว็บไซต์ 👉
+            </div>
+            <div class="website-links">
+                <div class="website-link">วันพ่อ</div>
+                <div class="website-link">วันปีใหม่</div>
+                <div class="website-link">วันเด็ก</div>
+            </div>
+        </div>
+        
+        <!-- Social Links Section -->
+        <div class="section">
+            <div class="section-title">🩷 Social links โรงเรียนสวนกุหลาบวิทยาลัย 🩵</div>
+            <div class="social-links">
+                <div class="social-icon" title="Facebook">👍</div>
+                <div class="social-icon" title="Instagram">📷</div>
+                <div class="social-icon" title="Website">🌐</div>
+            </div>
+        </div>
+        
+        <!-- Address Section -->
+        <div class="section">
+            <div class="address-title">ที่อยู่โรงเรียนสวนกุหลาบวิทยาลัย</div>
+            <div class="address-info">
+                เลขที่ 88 ถนนตรีเพชร แขวงวังบูรพาภิรมย์  
+
+                เขตพระนคร กรุงเทพมหานคร
+            </div>
+        </div>
+    </div>
+</body>
+</html>
