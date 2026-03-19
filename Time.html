@@ -3,271 +3,233 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>StudySpace - Minimalist Planner</title>
+    <title>AI Study Planner & Learning Hub</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://unpkg.com/lucide@latest"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Kanit', sans-serif; }
+        @import url('https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600&display=swap');
+        body { font-family: 'Kanit', sans-serif; background-color: #f8fafc; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; animation: fadeIn 0.3s; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
-<body class="flex h-screen bg-slate-50">
+<body class="text-slate-800 h-screen flex flex-col">
 
-    <aside class="w-64 bg-white border-r border-slate-200 flex flex-col">
-        <div class="p-6">
-            <h1 class="text-xl font-bold text-slate-800 flex items-center gap-2">
-                <i data-lucide="book-open" class="text-blue-600"></i> StudySpace
-            </h1>
-        </div>
-        <nav class="flex-1 px-4 space-y-2">
-            <a href="#" class="flex items-center gap-3 px-4 py-3 bg-blue-50 text-blue-700 rounded-xl font-medium">
-                <i data-lucide="calendar"></i> Dashboard
-            </a>
-            <a href="#" class="flex items-center gap-3 px-4 py-3 text-slate-600 hover:bg-slate-50 rounded-xl font-medium transition-colors">
-                <i data-lucide="file-text"></i> Learning Hub
-            </a>
-            <a href="#" class="flex items-center gap-3 px-4 py-3 text-slate-600 hover:bg-slate-50 rounded-xl font-medium transition-colors">
-                <i data-lucide="clock"></i> Active Session
-            </a>
-        </nav>
-    </aside>
-
-    <main class="flex-1 p-8 overflow-y-auto">
-        <header class="flex justify-between items-center mb-8">
-            <div>
-                <h2 class="text-2xl font-bold text-slate-800">Today's Schedule</h2>
-                <p class="text-slate-500 mt-1">จัดการเวลาเรียนของคุณอย่างมีประสิทธิภาพ</p>
-            </div>
-            <div class="flex gap-3">
-                <button class="px-4 py-2 bg-white border border-slate-200 text-slate-700 rounded-lg font-medium hover:bg-slate-50 flex items-center gap-2 shadow-sm">
-                    <i data-lucide="plus" class="w-5 h-5"></i> Add Task
-                </button>
-                <button onclick="openModal()" class="px-4 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 flex items-center gap-2 shadow-sm transition-colors">
-                    <i data-lucide="wand-2" class="w-5 h-5"></i> AI Planner
-                </button>
-            </div>
-        </header>
-
-        <div class="max-w-3xl">
-            <h3 class="text-lg font-semibold text-slate-700 mb-4">Active Tasks</h3>
-            <div id="task-list-container" class="space-y-3">
+    <nav class="bg-indigo-600 text-white shadow-md">
+        <div class="max-w-6xl mx-auto px-4">
+            <div class="flex justify-between items-center py-4">
+                <div class="text-xl font-bold flex items-center gap-2">
+                    🧠 AI Study Hub
                 </div>
+                <div class="flex space-x-2">
+                    <button onclick="switchTab('calendar')" class="px-4 py-2 bg-indigo-700 hover:bg-indigo-800 rounded-lg transition">📅 แผนการเรียน</button>
+                    <button onclick="switchTab('resource')" class="px-4 py-2 hover:bg-indigo-700 rounded-lg transition">📚 สรุปเนื้อหา</button>
+                    <button onclick="switchTab('timer')" class="px-4 py-2 hover:bg-indigo-700 rounded-lg transition">⏱️ จับเวลา</button>
+                </div>
+            </div>
         </div>
+    </nav>
+
+    <main class="flex-grow max-w-6xl mx-auto px-4 py-8 w-full">
+
+        <section id="calendar" class="tab-content active">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-bold text-slate-700">รายการสิ่งที่ต้องทำวันนี้</h2>
+                <div class="space-x-2">
+                    <button onclick="addManualTask()" class="px-4 py-2 bg-white border border-slate-300 shadow-sm rounded-lg hover:bg-slate-50">+ สร้างเอง</button>
+                    <button onclick="generateAIPlan()" class="px-4 py-2 bg-gradient-to-r from-indigo-500 to-purple-500 text-white shadow-sm rounded-lg hover:opacity-90">✨ AI วางแผนระยะยาว</button>
+                </div>
+            </div>
+
+            <div id="ai-planner-box" class="hidden bg-indigo-50 p-4 rounded-xl border border-indigo-200 mb-6">
+                <h3 class="font-semibold text-indigo-800 mb-2">ให้ AI ช่วยวางแผนให้คุณ (ตัวอย่าง: อยากเรียน Python ใน 3 วัน)</h3>
+                <input type="text" id="ai-prompt" class="w-full p-2 rounded border border-slate-300 mb-3" placeholder="พิมพ์สิ่งที่คุณต้องการเรียน...">
+                <button onclick="confirmAIPlan()" class="px-4 py-2 bg-indigo-600 text-white rounded-lg">วิเคราะห์และสร้าง Draft</button>
+                <div id="ai-draft-result" class="mt-4 hidden text-sm text-slate-600 bg-white p-3 rounded border border-slate-200">
+                    </div>
+            </div>
+
+            <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6" id="task-list">
+                <p class="text-slate-400 text-center py-8" id="empty-state">ยังไม่มีรายการเรียนในวันนี้ กดปุ่มด้านบนเพื่อเพิ่มเลย!</p>
+                </div>
+        </section>
+
+        <section id="resource" class="tab-content">
+            <h2 class="text-2xl font-bold text-slate-700 mb-6">สรุปเนื้อหาด้วย AI</h2>
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 mb-6">
+                <label class="block text-sm font-medium text-slate-700 mb-2">วางลิงก์ (YouTube, บทความ) หรือพิมพ์เนื้อหาที่นี่</label>
+                <textarea id="source-text" rows="4" class="w-full p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none" placeholder="วางลิงก์หรือข้อความ..."></textarea>
+                <button onclick="summarizeContent()" class="mt-4 px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 flex items-center gap-2">
+                    ✨ สรุปเนื้อหาด้วย AI
+                </button>
+            </div>
+
+            <div id="summary-result" class="hidden bg-gradient-to-br from-indigo-50 to-purple-50 p-6 rounded-xl border border-indigo-100">
+                <h3 class="font-bold text-indigo-800 mb-3 text-lg">💡 สรุปประเด็นสำคัญ:</h3>
+                <ul class="list-disc pl-5 space-y-2 text-slate-700 mb-4" id="summary-bullets">
+                    </ul>
+                <button onclick="convertSummaryToTask()" class="px-4 py-2 bg-white border border-indigo-300 text-indigo-700 rounded-lg hover:bg-indigo-50">
+                    + นำไปสร้างเป็น To-do List ในวันนี้
+                </button>
+            </div>
+        </section>
+
+        <section id="timer" class="tab-content">
+            <div class="max-w-md mx-auto mt-12 text-center bg-white p-10 rounded-2xl shadow-sm border border-slate-200">
+                <h2 class="text-2xl font-bold text-slate-700 mb-2">โหมดโฟกัส</h2>
+                <p class="text-slate-500 mb-8" id="timer-task-name">เลือกกิจกรรมจากหน้าแผนการเรียนเพื่อเริ่มจับเวลา</p>
+                
+                <div class="text-7xl font-mono font-bold text-indigo-600 mb-8" id="time-display">25:00</div>
+                
+                <div class="flex justify-center space-x-4">
+                    <button onclick="startTimer()" id="start-btn" class="px-8 py-3 bg-indigo-600 text-white rounded-full font-semibold hover:bg-indigo-700 shadow-lg transition transform hover:scale-105">เริ่ม</button>
+                    <button onclick="pauseTimer()" class="px-8 py-3 bg-slate-100 text-slate-700 rounded-full font-semibold hover:bg-slate-200 transition">พัก</button>
+                    <button onclick="resetTimer()" class="px-8 py-3 bg-red-100 text-red-600 rounded-full font-semibold hover:bg-red-200 transition">รีเซ็ต</button>
+                </div>
+            </div>
+        </section>
+
     </main>
 
-    <div id="ai-modal" class="fixed inset-0 bg-slate-900/50 hidden items-center justify-center z-50">
-        <div class="bg-white rounded-2xl p-6 w-full max-w-2xl shadow-xl">
-            <div class="flex justify-between items-center mb-4">
-                <h2 class="text-xl font-bold text-slate-800 flex items-center gap-2">
-                    <i data-lucide="wand-2" class="text-blue-500"></i> AI Long-term Planner
-                </h2>
-                <button onclick="closeModal()" class="text-slate-400 hover:text-slate-600">
-                    <i data-lucide="x"></i>
-                </button>
-            </div>
+    <script>
+        // ระบบเปลี่ยนหน้า (Tab System)
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+            
+            // อัปเดตสีปุ่ม
+            const buttons = document.querySelectorAll('nav button');
+            buttons.forEach(btn => btn.classList.remove('bg-indigo-700'));
+            event.currentTarget.classList.add('bg-indigo-700');
+        }
 
-            <div id="modal-input-section" class="space-y-4">
-                <label class="block text-sm font-medium text-slate-600">เป้าหมายการเรียนของคุณคืออะไร?</label>
-                <textarea id="ai-prompt" class="w-full p-3 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-200 focus:border-blue-400 outline-none" rows="4" placeholder="เช่น สอนแคลคูลัส 1 ตั้งแต่เริ่มจนสอบใน 14 วัน โดยเน้นทำโจทย์..."></textarea>
-                <button id="generate-btn" onclick="generateAiPlan()" class="w-full py-3 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 flex justify-center items-center gap-2 transition-colors">
-                    Generate Study Plan
-                </button>
-            </div>
-
-            <div id="modal-draft-section" class="hidden space-y-4 mt-4">
-                <h3 class="font-semibold text-slate-700">Draft Schedule (รอยืนยัน)</h3>
-                <div id="draft-list" class="max-h-60 overflow-y-auto space-y-2 pr-2">
+        // --- ระบบปฏิทิน & Tasks ---
+        function addManualTask(title = "วิชาใหม่", duration = 25) {
+            document.getElementById('empty-state').style.display = 'none';
+            const taskList = document.getElementById('task-list');
+            
+            const taskHTML = `
+                <div class="flex items-center justify-between p-4 bg-slate-50 rounded-lg border border-slate-200 mb-3">
+                    <div class="flex items-center gap-3">
+                        <input type="checkbox" class="w-5 h-5 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500">
+                        <div>
+                            <p class="font-medium text-slate-800">${title}</p>
+                            <p class="text-sm text-slate-500">เป้าหมายเวลา: ${duration} นาที</p>
+                        </div>
                     </div>
-                <div class="flex gap-3 pt-4 border-t border-slate-100">
-                    <button onclick="resetModal()" class="flex-1 py-2 bg-slate-100 text-slate-600 rounded-lg font-medium hover:bg-slate-200">
-                        ปรับแก้ (Edit)
-                    </button>
-                    <button onclick="confirmAiPlan()" class="flex-1 py-2 bg-green-600 text-white rounded-lg font-medium hover:bg-green-700">
-                        ยืนยันลงปฏิทิน (Confirm)
+                    <button onclick="sendToTimer('${title}', ${duration})" class="px-4 py-2 bg-indigo-100 text-indigo-700 rounded-lg text-sm hover:bg-indigo-200">
+                        ▶️ เริ่มทำ
                     </button>
                 </div>
-            </div>
-        </div>
-    </div>
-
-    <script>
-        // --- 1. State Management ---
-        let tasks = [
-            { id: 'task-1', title: 'อ่านหนังสือชีววิทยา บทที่ 1', day: 1, duration: 45, remaining: 45 * 60, status: 'Todo', intervalId: null }
-        ];
-        let draftPlan = [];
-
-        // ฟังก์ชันแปลงวินาทีเป็นรูปแบบ MM:SS
-        const formatTime = (seconds) => {
-            const mins = Math.floor(seconds / 60);
-            const secs = seconds % 60;
-            return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
-        };
-
-        // --- 2. Rendering Functions ---
-        function renderTasks() {
-            const container = document.getElementById('task-list-container');
-            container.innerHTML = '';
-
-            if (tasks.length === 0) {
-                container.innerHTML = '<div class="text-center py-10 text-slate-400 bg-white rounded-xl border border-dashed border-slate-300">ยังไม่มีแผนการเรียน กดปุ่ม AI Planner เพื่อสร้างได้เลย!</div>';
-                return;
-            }
-
-            tasks.forEach(task => {
-                const isDone = task.status === 'Done';
-                const el = document.createElement('div');
-                el.className = `p-4 rounded-xl shadow-sm border mb-3 transition-all ${isDone ? 'bg-green-50 border-green-200' : 'bg-white border-slate-200'}`;
-                
-                let innerHTML = `
-                    <div class="flex justify-between items-center">
-                        <div>
-                            <h3 class="font-bold ${isDone ? 'text-green-700 line-through' : 'text-slate-700'}">${task.title}</h3>
-                            <div class="flex items-center gap-2 mt-1">
-                                <i data-lucide="clock" class="w-3.5 h-3.5 text-slate-400"></i>
-                                <span class="text-sm text-slate-500">Day ${task.day} • ${task.duration} mins</span>
-                            </div>
-                        </div>
-                `;
-
-                if (!isDone) {
-                    innerHTML += `
-                        <div class="flex items-center gap-4">
-                            <p id="timer-display-${task.id}" class="text-2xl font-mono text-blue-600 font-semibold">${formatTime(task.remaining)}</p>
-                            <div class="flex gap-2">
-                                <button onclick="toggleTimer('${task.id}')" id="btn-play-${task.id}" class="p-2 bg-blue-100 text-blue-600 rounded-full hover:bg-blue-200 transition-colors">
-                                    <i data-lucide="${task.intervalId ? 'pause' : 'play'}" class="w-5 h-5"></i>
-                                </button>
-                                <button onclick="resetTimer('${task.id}')" class="p-2 bg-slate-100 text-slate-400 rounded-full hover:bg-slate-200">
-                                    <i data-lucide="rotate-ccw" class="w-5 h-5"></i>
-                                </button>
-                                <button onclick="completeTask('${task.id}')" class="p-2 bg-green-100 text-green-600 rounded-full hover:bg-green-200">
-                                    <i data-lucide="check-circle" class="w-5 h-5"></i>
-                                </button>
-                            </div>
-                        </div>
-                    `;
-                } else {
-                    innerHTML += `<div class="text-green-600 font-bold flex items-center gap-2"><i data-lucide="check-circle"></i> Completed</div>`;
-                }
-
-                innerHTML += `</div>`;
-                el.innerHTML = innerHTML;
-                container.appendChild(el);
-            });
-
-            // อัปเดตไอคอนของ Lucide ให้แสดงผลใหม่หลัง Render
-            lucide.createIcons();
+            `;
+            taskList.insertAdjacentHTML('beforeend', taskHTML);
         }
 
-        // --- 3. Timer Logic ---
-        function toggleTimer(id) {
-            const task = tasks.find(t => t.id === id);
-            if (!task) return;
-
-            if (task.intervalId) {
-                // หยุดเวลา (Pause)
-                clearInterval(task.intervalId);
-                task.intervalId = null;
-            } else {
-                // เริ่มเวลา (Play)
-                task.intervalId = setInterval(() => {
-                    task.remaining--;
-                    document.getElementById(`timer-display-${id}`).innerText = formatTime(task.remaining);
-                    
-                    if (task.remaining <= 0) {
-                        clearInterval(task.intervalId);
-                        task.intervalId = null;
-                        alert(`🎉 จบช่วงเวลาเรียน: ${task.title} แล้ว!`);
-                        completeTask(id);
-                    }
-                }, 1000);
-            }
-            renderTasks(); // Render ใหม่เพื่อเปลี่ยนไอคอน Play/Pause
+        function generateAIPlan() {
+            const box = document.getElementById('ai-planner-box');
+            box.classList.toggle('hidden');
         }
 
-        function resetTimer(id) {
-            const task = tasks.find(t => t.id === id);
-            if (task) {
-                if (task.intervalId) clearInterval(task.intervalId);
-                task.intervalId = null;
-                task.remaining = task.duration * 60;
-                renderTasks();
-            }
+        function confirmAIPlan() {
+            const resultBox = document.getElementById('ai-draft-result');
+            resultBox.classList.remove('hidden');
+            resultBox.innerHTML = `
+                <p class="mb-2"><strong>AI Draft (กดบันทึกเพื่อเพิ่มลงรายการ):</strong></p>
+                <ul class="list-disc pl-5 mb-3">
+                    <li>วันที่ 1: พื้นฐานตัวแปรและ Loop (45 นาที)</li>
+                    <li>วันที่ 2: โครงสร้างข้อมูลเบื้องต้น (60 นาที)</li>
+                </ul>
+                <button onclick="approveDraft()" class="px-3 py-1 bg-green-500 text-white rounded text-sm">ยืนยันและเพิ่มลงรายการวันนี้ (Day 1)</button>
+            `;
         }
 
-        function completeTask(id) {
-            const task = tasks.find(t => t.id === id);
-            if (task) {
-                if (task.intervalId) clearInterval(task.intervalId);
-                task.status = 'Done';
-                renderTasks();
-            }
+        function approveDraft() {
+            addManualTask("พื้นฐานตัวแปรและ Loop (จาก AI Planner)", 45);
+            document.getElementById('ai-planner-box').classList.add('hidden');
+            document.getElementById('ai-draft-result').classList.add('hidden');
+            alert('เพิ่มเข้าตารางของวันนี้เรียบร้อย!');
         }
 
-        // --- 4. AI Modal Logic ---
-        const modal = document.getElementById('ai-modal');
-        const inputSection = document.getElementById('modal-input-section');
-        const draftSection = document.getElementById('modal-draft-section');
-        const generateBtn = document.getElementById('generate-btn');
-
-        function openModal() {
-            modal.classList.remove('hidden');
-            modal.classList.add('flex');
-        }
-
-        function closeModal() {
-            modal.classList.add('hidden');
-            modal.classList.remove('flex');
-            resetModal();
-        }
-
-        function resetModal() {
-            document.getElementById('ai-prompt').value = '';
-            inputSection.classList.remove('hidden');
-            draftSection.classList.add('hidden');
-            generateBtn.innerText = 'Generate Study Plan';
-            generateBtn.disabled = false;
-        }
-
-        function generateAiPlan() {
-            const prompt = document.getElementById('ai-prompt').value;
-            if (!prompt) return alert('กรุณาระบุเป้าหมายการเรียนครับ');
-
-            generateBtn.innerText = 'กำลังวิเคราะห์แผนการเรียน...';
-            generateBtn.disabled = true;
-
-            // จำลองการดึง API (Mockup Data)
+        // --- ระบบ Resource Hub ---
+        function summarizeContent() {
+            const input = document.getElementById('source-text').value;
+            if(!input) return alert('กรุณาใส่ลิงก์หรือข้อความก่อนครับ');
+            
+            const btn = event.currentTarget;
+            btn.innerHTML = "⏳ กำลังประมวลผล...";
+            
+            // จำลองการโหลด AI 1.5 วินาที
             setTimeout(() => {
-                draftPlan = [
-                    { id: 'ai-1', title: 'ปูพื้นฐานแคลคูลัส (ลิมิต)', day: 1, duration: 60, remaining: 60 * 60, status: 'Todo', intervalId: null },
-                    { id: 'ai-2', title: 'ฝึกทำโจทย์ลิมิต 20 ข้อ', day: 2, duration: 90, remaining: 90 * 60, status: 'Todo', intervalId: null }
-                ];
-
-                const draftList = document.getElementById('draft-list');
-                draftList.innerHTML = draftPlan.map(task => `
-                    <div class="p-3 bg-slate-50 border border-slate-200 rounded-lg flex justify-between items-center">
-                        <div>
-                            <span class="text-xs font-bold text-blue-600 bg-blue-100 px-2 py-1 rounded-full mr-2">Day ${task.day}</span>
-                            <span class="text-slate-700">${task.title}</span>
-                        </div>
-                        <span class="text-sm text-slate-500">${task.duration} นาที</span>
-                    </div>
-                `).join('');
-
-                inputSection.classList.add('hidden');
-                draftSection.classList.remove('hidden');
+                document.getElementById('summary-result').classList.remove('hidden');
+                document.getElementById('summary-bullets').innerHTML = `
+                    <li>แนวคิดหลักคือการแบ่งงานใหญ่ออกเป็นส่วนเล็กๆ</li>
+                    <li>ควรใช้เทคนิค Pomodoro (ทำ 25 พัก 5) เพื่อเพิ่มสมาธิ</li>
+                    <li>การทบทวนทันทีหลังเรียนจบ ช่วยเพิ่มความจำได้ 40%</li>
+                `;
+                btn.innerHTML = "✨ สรุปเนื้อหาด้วย AI";
             }, 1500);
         }
 
-        function confirmAiPlan() {
-            tasks = [...tasks, ...draftPlan];
-            closeModal();
-            renderTasks();
+        function convertSummaryToTask() {
+            addManualTask("ทบทวน: สรุปจาก Resource Hub", 30);
+            alert("สร้างรายการไปที่หน้าปฏิทินเรียบร้อยแล้ว!");
         }
 
-        // โหลดข้อมูลเริ่มต้นเมื่อเปิดหน้าเว็บ
-        renderTasks();
+        // --- ระบบ Timer ---
+        let timerInterval;
+        let timeLeft = 25 * 60; // 25 นาทีตั้งต้น
+        let isRunning = false;
+
+        function updateDisplay() {
+            const mins = Math.floor(timeLeft / 60);
+            const secs = timeLeft % 60;
+            document.getElementById('time-display').textContent = 
+                `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+        }
+
+        function sendToTimer(taskName, durationMinutes) {
+            switchTab('timer');
+            document.getElementById('timer-task-name').textContent = `กำลังโฟกัส: ${taskName}`;
+            timeLeft = durationMinutes * 60;
+            updateDisplay();
+            resetTimer(false); 
+        }
+
+        function startTimer() {
+            if (isRunning) return;
+            isRunning = true;
+            document.getElementById('start-btn').textContent = "กำลังทำ...";
+            document.getElementById('start-btn').classList.replace('bg-indigo-600', 'bg-green-600');
+            
+            timerInterval = setInterval(() => {
+                if (timeLeft > 0) {
+                    timeLeft--;
+                    updateDisplay();
+                } else {
+                    clearInterval(timerInterval);
+                    isRunning = false;
+                    alert("หมดเวลา! เก่งมากครับ 🎉");
+                    document.getElementById('start-btn').textContent = "เริ่ม";
+                    document.getElementById('start-btn').classList.replace('bg-green-600', 'bg-indigo-600');
+                }
+            }, 1000);
+        }
+
+        function pauseTimer() {
+            clearInterval(timerInterval);
+            isRunning = false;
+            document.getElementById('start-btn').textContent = "ทำต่อ";
+            document.getElementById('start-btn').classList.replace('bg-green-600', 'bg-indigo-600');
+        }
+
+        function resetTimer(resetText = true) {
+            clearInterval(timerInterval);
+            isRunning = false;
+            if(resetText) document.getElementById('timer-task-name').textContent = "เลือกกิจกรรมจากหน้าแผนการเรียนเพื่อเริ่มจับเวลา";
+            document.getElementById('start-btn').textContent = "เริ่ม";
+            document.getElementById('start-btn').classList.replace('bg-green-600', 'bg-indigo-600');
+            updateDisplay();
+        }
 
     </script>
 </body>
