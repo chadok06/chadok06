@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MWIT Smart Study Planner</title>
+
+<style>
+:root {
+  --bg:#0a1628;
+  --card:#132445;
+  --gold:#c9a227;
+  --text:#e8dfc8;
+}
+
+body {
+  margin:0;
+  font-family: 'Sarabun', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+}
+
+.container {
+  max-width: 1100px;
+  margin:auto;
+  padding:20px;
+}
+
+h1 {
+  text-align:center;
+  margin-bottom:20px;
+}
+
+.card {
+  background: var(--card);
+  padding:15px;
+  border-radius:12px;
+  margin-bottom:15px;
+}
+
+input, select {
+  padding:6px;
+  border-radius:6px;
+  border:none;
+}
+
+button {
+  padding:6px 12px;
+  border:none;
+  border-radius:6px;
+  background:var(--gold);
+  cursor:pointer;
+}
+
+/* schedule */
+.schedule-block {
+  padding:8px;
+  margin:5px 0;
+  border-left:4px solid var(--gold);
+}
+
+/* subject */
+.task {
+  display:flex;
+  justify-content:space-between;
+  margin:6px 0;
+}
+
+.done {
+  text-decoration:line-through;
+  opacity:0.6;
+}
+
+/* progress */
+.progress {
+  height:10px;
+  background:#333;
+  border-radius:10px;
+}
+
+.bar {
+  height:100%;
+  background:var(--gold);
+  border-radius:10px;
+}
+
+/* timer */
+.timer {
+  text-align:center;
+  font-size:28px;
+  margin-top:10px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<h1>📘 MWIT Smart Study Planner</h1>
+
+<!-- SETTINGS -->
+<div class="card">
+<h3>⚙️ ตั้งค่า</h3>
+เริ่มเรียน: <input id="startHour" type="number" value="16">
+เรียน (นาที): <input id="studyTime" type="number" value="50">
+พัก (นาที): <input id="breakTime" type="number" value="10">
+จำนวนรอบ: <input id="rounds" type="number" value="4">
+<button onclick="saveSettings()">บันทึก</button>
+</div>
+
+<!-- COUNTDOWN -->
+<div class="card">
+<h3>⏳ Countdown ถึงสอบ</h3>
+<div id="countdown"></div>
+</div>
+
+<!-- SCHEDULE -->
+<div class="card">
+<h3>📅 ตารางวันนี้</h3>
+<div id="schedule"></div>
+</div>
+
+<!-- TIMER -->
+<div class="card">
+<h3>⏱ Timer</h3>
+<div class="timer" id="timer">00:00</div>
+<button onclick="startTimer()">Start</button>
+<button onclick="resetTimer()">Reset</button>
+</div>
+
+<!-- SUBJECT -->
+<div class="card">
+<h3>📚 เนื้อหาที่สอบ</h3>
+<div id="subjects"></div>
+</div>
+
+<!-- PROGRESS -->
+<div class="card">
+<h3>📊 Progress</h3>
+<div class="progress">
+  <div id="bar" class="bar" style="width:0%"></div>
+</div>
+<p id="percent">0%</p>
+</div>
+
+<button onclick="resetAll()">🔄 Reset ทั้งหมด</button>
+
+</div>
+
+<script>
+
+// SUBJECT DATA (MWIT-focused)
+const subjects = {
+  "คณิตศาสตร์":[
+    "สมการ/อสมการ","ฟังก์ชัน","เรขาคณิต","ความน่าจะเป็น","ลำดับอนุกรม"
+  ],
+  "ฟิสิกส์":[
+    "กลศาสตร์","ไฟฟ้า","คลื่น","แสง","ความร้อน"
+  ],
+  "เคมี":[
+    "อะตอม","พันธะเคมี","กรดเบส","ปฏิกิริยา","อินทรีย์"
+  ],
+  "ชีวะ":[
+    "เซลล์","พันธุกรรม","ระบบร่างกาย","นิเวศ","วิวัฒนาการ"
+  ]
+};
+
+let done = JSON.parse(localStorage.getItem("done"))||[];
+let settings = JSON.parse(localStorage.getItem("settings"))||{
+  start:16,study:50,break:10,rounds:4
+};
+
+// SAVE SETTINGS
+function saveSettings(){
+  settings.start = +startHour.value;
+  settings.study = +studyTime.value;
+  settings.break = +breakTime.value;
+  settings.rounds = +rounds.value;
+  localStorage.setItem("settings",JSON.stringify(settings));
+  generateSchedule();
+}
+
+// SCHEDULE
+function generateSchedule(){
+  let html="";
+  let time = settings.start;
+
+  for(let i=0;i<settings.rounds;i++){
+    html += `<div class="schedule-block">🧠 ${time}:00 - ${time+1}:00 เรียน</div>`;
+    html += `<div class="schedule-block">☕ พัก ${settings.break} นาที</div>`;
+    time++;
+  }
+
+  schedule.innerHTML = html;
+}
+
+// SUBJECT
+function renderSubjects(){
+  let html="";
+  for(let s in subjects){
+    html+=`<h4>${s}</h4>`;
+    subjects[s].forEach(t=>{
+      let key=s+t;
+      let checked=done.includes(key);
+      html+=`
+      <div class="task">
+        <span class="${checked?'done':''}">${t}</span>
+        <input type="checkbox" ${checked?'checked':''}
+        onchange="toggle('${key}')">
+      </div>`;
+    });
+  }
+  subjectsDiv.innerHTML=html;
+}
+
+function toggle(key){
+  if(done.includes(key)) done=done.filter(x=>x!==key);
+  else done.push(key);
+  localStorage.setItem("done",JSON.stringify(done));
+  renderSubjects();
+  updateProgress();
+}
+
+// PROGRESS
+function updateProgress(){
+  let total=0;
+  for(let s in subjects) total+=subjects[s].length;
+  let percent=Math.round((done.length/total)*100);
+  bar.style.width=percent+"%";
+  percentText.innerText=percent+"%";
+}
+
+// TIMER
+let timerInterval;
+let timeLeft=0;
+
+function startTimer(){
+  timeLeft=settings.study*60;
+
+  timerInterval=setInterval(()=>{
+    if(timeLeft<=0) return clearInterval(timerInterval);
+
+    let m=Math.floor(timeLeft/60);
+    let s=timeLeft%60;
+    timer.innerText=`${m}:${s.toString().padStart(2,'0')}`;
+
+    timeLeft--;
+  },1000);
+}
+
+function resetTimer(){
+  clearInterval(timerInterval);
+  timer.innerText="00:00";
+}
+
+// COUNTDOWN
+function countdown(){
+  const exam = new Date("2026-05-15");
+  let diff=exam-new Date();
+
+  let d=Math.floor(diff/(1000*60*60*24));
+  countdownDiv.innerText=`เหลือ ${d} วัน`;
+}
+
+// RESET
+function resetAll(){
+  localStorage.clear();
+  location.reload();
+}
+
+// INIT
+startHour.value=settings.start;
+studyTime.value=settings.study;
+breakTime.value=settings.break;
+rounds.value=settings.rounds;
+
+const subjectsDiv=document.getElementById("subjects");
+const percentText=document.getElementById("percent");
+const countdownDiv=document.getElementById("countdown");
+
+generateSchedule();
+renderSubjects();
+updateProgress();
+countdown();
+
+</script>
+
+</body>
+</html>
