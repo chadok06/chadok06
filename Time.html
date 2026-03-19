@@ -3,288 +3,121 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>MWIT Smart Study Planner</title>
-
+<title>\u0e41\u0e1c\u0e19\u0e01\u0e32\u0e23\u0e40\u0e23\u0e35\u0e22\u0e19 \u00b7 \u0e2a\u0e2d\u0e1a\u0e40\u0e02\u0e49\u0e32\u0e21\u0e2b\u0e34\u0e14\u0e25</title>
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,700;1,400&display=swap" rel="stylesheet">
 <style>
-:root {
-  --bg:#0a1628;
-  --card:#132445;
-  --gold:#c9a227;
-  --text:#e8dfc8;
-}
-
-body {
-  margin:0;
-  font-family: 'Sarabun', sans-serif;
-  background: var(--bg);
-  color: var(--text);
-}
-
-.container {
-  max-width: 1100px;
-  margin:auto;
-  padding:20px;
-}
-
-h1 {
-  text-align:center;
-  margin-bottom:20px;
-}
-
-.card {
-  background: var(--card);
-  padding:15px;
-  border-radius:12px;
-  margin-bottom:15px;
-}
-
-input, select {
-  padding:6px;
-  border-radius:6px;
-  border:none;
-}
-
-button {
-  padding:6px 12px;
-  border:none;
-  border-radius:6px;
-  background:var(--gold);
-  cursor:pointer;
-}
-
-/* schedule */
-.schedule-block {
-  padding:8px;
-  margin:5px 0;
-  border-left:4px solid var(--gold);
-}
-
-/* subject */
-.task {
-  display:flex;
-  justify-content:space-between;
-  margin:6px 0;
-}
-
-.done {
-  text-decoration:line-through;
-  opacity:0.6;
-}
-
-/* progress */
-.progress {
-  height:10px;
-  background:#333;
-  border-radius:10px;
-}
-
-.bar {
-  height:100%;
-  background:var(--gold);
-  border-radius:10px;
-}
-
-/* timer */
-.timer {
-  text-align:center;
-  font-size:28px;
-  margin-top:10px;
-}
-</style>
-</head>
-
-<body>
-
-<div class="container">
-
-<h1>📘 MWIT Smart Study Planner</h1>
-
-<!-- SETTINGS -->
-<div class="card">
-<h3>⚙️ ตั้งค่า</h3>
-เริ่มเรียน: <input id="startHour" type="number" value="16">
-เรียน (นาที): <input id="studyTime" type="number" value="50">
-พัก (นาที): <input id="breakTime" type="number" value="10">
-จำนวนรอบ: <input id="rounds" type="number" value="4">
-<button onclick="saveSettings()">บันทึก</button>
-</div>
-
-<!-- COUNTDOWN -->
-<div class="card">
-<h3>⏳ Countdown ถึงสอบ</h3>
-<div id="countdown"></div>
-</div>
-
-<!-- SCHEDULE -->
-<div class="card">
-<h3>📅 ตารางวันนี้</h3>
-<div id="schedule"></div>
-</div>
-
-<!-- TIMER -->
-<div class="card">
-<h3>⏱ Timer</h3>
-<div class="timer" id="timer">00:00</div>
-<button onclick="startTimer()">Start</button>
-<button onclick="resetTimer()">Reset</button>
-</div>
-
-<!-- SUBJECT -->
-<div class="card">
-<h3>📚 เนื้อหาที่สอบ</h3>
-<div id="subjects"></div>
-</div>
-
-<!-- PROGRESS -->
-<div class="card">
-<h3>📊 Progress</h3>
-<div class="progress">
-  <div id="bar" class="bar" style="width:0%"></div>
-</div>
-<p id="percent">0%</p>
-</div>
-
-<button onclick="resetAll()">🔄 Reset ทั้งหมด</button>
-
-</div>
-
-<script>
-
-// SUBJECT DATA (MWIT-focused)
-const subjects = {
-  "คณิตศาสตร์":[
-    "สมการ/อสมการ","ฟังก์ชัน","เรขาคณิต","ความน่าจะเป็น","ลำดับอนุกรม"
-  ],
-  "ฟิสิกส์":[
-    "กลศาสตร์","ไฟฟ้า","คลื่น","แสง","ความร้อน"
-  ],
-  "เคมี":[
-    "อะตอม","พันธะเคมี","กรดเบส","ปฏิกิริยา","อินทรีย์"
-  ],
-  "ชีวะ":[
-    "เซลล์","พันธุกรรม","ระบบร่างกาย","นิเวศ","วิวัฒนาการ"
-  ]
-};
-
-let done = JSON.parse(localStorage.getItem("done"))||[];
-let settings = JSON.parse(localStorage.getItem("settings"))||{
-  start:16,study:50,break:10,rounds:4
-};
-
-// SAVE SETTINGS
-function saveSettings(){
-  settings.start = +startHour.value;
-  settings.study = +studyTime.value;
-  settings.break = +breakTime.value;
-  settings.rounds = +rounds.value;
-  localStorage.setItem("settings",JSON.stringify(settings));
-  generateSchedule();
-}
-
-// SCHEDULE
-function generateSchedule(){
-  let html="";
-  let time = settings.start;
-
-  for(let i=0;i<settings.rounds;i++){
-    html += `<div class="schedule-block">🧠 ${time}:00 - ${time+1}:00 เรียน</div>`;
-    html += `<div class="schedule-block">☕ พัก ${settings.break} นาที</div>`;
-    time++;
+  :root {
+    --navy: #0a1628;
+    --deep: #0d1f3c;
+    --blue: #1a3a6b;
+    --gold: #c9a227;
+    --gold-light: #e8c45a;
+    --cream: #f5efe0;
+    --white: #ffffff;
+    --text: #e8dfc8;
+    --muted: #8a9bb5;
+    --success: #4caf89;
+    --danger: #e05c5c;
+    --card-bg: rgba(255,255,255,0.04);
+    --border: rgba(201,162,39,0.2);
   }
 
-  schedule.innerHTML = html;
-}
+  * { box-sizing: border-box; margin: 0; padding: 0; }
 
-// SUBJECT
-function renderSubjects(){
-  let html="";
-  for(let s in subjects){
-    html+=`<h4>${s}</h4>`;
-    subjects[s].forEach(t=>{
-      let key=s+t;
-      let checked=done.includes(key);
-      html+=`
-      <div class="task">
-        <span class="${checked?'done':''}">${t}</span>
-        <input type="checkbox" ${checked?'checked':''}
-        onchange="toggle('${key}')">
-      </div>`;
-    });
+  body {
+    background: var(--navy);
+    color: var(--text);
+    font-family: 'Sarabun', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
   }
-  subjectsDiv.innerHTML=html;
-}
 
-function toggle(key){
-  if(done.includes(key)) done=done.filter(x=>x!==key);
-  else done.push(key);
-  localStorage.setItem("done",JSON.stringify(done));
-  renderSubjects();
-  updateProgress();
-}
+  /* Background pattern */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 80% 50% at 20% 10%, rgba(26,58,107,0.5) 0%, transparent 60%),
+      radial-gradient(ellipse 60% 40% at 80% 80%, rgba(201,162,39,0.08) 0%, transparent 60%);
+    pointer-events: none;
+    z-index: 0;
+  }
 
-// PROGRESS
-function updateProgress(){
-  let total=0;
-  for(let s in subjects) total+=subjects[s].length;
-  let percent=Math.round((done.length/total)*100);
-  bar.style.width=percent+"%";
-  percentText.innerText=percent+"%";
-}
+  .container { max-width: 1100px; margin: 0 auto; padding: 0 20px; position: relative; z-index: 1; }
 
-// TIMER
-let timerInterval;
-let timeLeft=0;
+  /* ===== HEADER ===== */
+  header {
+    padding: 40px 20px 0;
+    text-align: center;
+    position: relative;
+  }
 
-function startTimer(){
-  timeLeft=settings.study*60;
+  .logo-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    background: rgba(201,162,39,0.12);
+    border: 1px solid var(--border);
+    border-radius: 50px;
+    padding: 6px 18px;
+    font-size: 13px;
+    color: var(--gold-light);
+    letter-spacing: 1px;
+    margin-bottom: 20px;
+    animation: fadeDown 0.6s ease both;
+  }
 
-  timerInterval=setInterval(()=>{
-    if(timeLeft<=0) return clearInterval(timerInterval);
+  .logo-badge svg { width: 14px; height: 14px; }
 
-    let m=Math.floor(timeLeft/60);
-    let s=timeLeft%60;
-    timer.innerText=`${m}:${s.toString().padStart(2,'0')}`;
+  h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2rem, 5vw, 3.2rem);
+    color: var(--white);
+    line-height: 1.15;
+    animation: fadeDown 0.7s 0.1s ease both;
+  }
 
-    timeLeft--;
-  },1000);
-}
+  h1 em {
+    font-style: italic;
+    color: var(--gold-light);
+  }
 
-function resetTimer(){
-  clearInterval(timerInterval);
-  timer.innerText="00:00";
-}
+  .subtitle {
+    margin-top: 10px;
+    color: var(--muted);
+    font-size: 15px;
+    animation: fadeDown 0.7s 0.2s ease both;
+  }
 
-// COUNTDOWN
-function countdown(){
-  const exam = new Date("2026-05-15");
-  let diff=exam-new Date();
+  /* ===== COUNTDOWN ===== */
+  .countdown-section {
+    margin: 36px auto 0;
+    max-width: 560px;
+    animation: fadeDown 0.7s 0.3s ease both;
+  }
 
-  let d=Math.floor(diff/(1000*60*60*24));
-  countdownDiv.innerText=`เหลือ ${d} วัน`;
-}
+  .countdown-label {
+    text-align: center;
+    font-size: 12px;
+    letter-spacing: 2px;
+    color: var(--gold);
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
 
-// RESET
-function resetAll(){
-  localStorage.clear();
-  location.reload();
-}
+  .countdown-boxes {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+  }
 
-// INIT
-startHour.value=settings.start;
-studyTime.value=settings.study;
-breakTime.value=settings.break;
-rounds.value=settings.rounds;
-
-const subjectsDiv=document.getElementById("subjects");
-const percentText=document.getElementById("percent");
-const countdownDiv=document.getElementById("countdown");
-
-generateSchedule();
-renderSubjects();
-updateProgress();
-countdown();
-
-</script>
-
-</body>
-</html>
+  .cd-box {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px 20px;
+    text-align: center;
+    min-width: 80px;
+    backdrop-filter: blur(10px);
+  
