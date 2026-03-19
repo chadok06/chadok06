@@ -1,123 +1,249 @@
-<!DOCTYPE html>
-<html lang="th">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>\u0e41\u0e1c\u0e19\u0e01\u0e32\u0e23\u0e40\u0e23\u0e35\u0e22\u0e19 \u00b7 \u0e2a\u0e2d\u0e1a\u0e40\u0e02\u0e49\u0e32\u0e21\u0e2b\u0e34\u0e14\u0e25</title>
-<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,700;1,400&display=swap" rel="stylesheet">
-<style>
-  :root {
-    --navy: #0a1628;
-    --deep: #0d1f3c;
-    --blue: #1a3a6b;
-    --gold: #c9a227;
-    --gold-light: #e8c45a;
-    --cream: #f5efe0;
-    --white: #ffffff;
-    --text: #e8dfc8;
-    --muted: #8a9bb5;
-    --success: #4caf89;
-    --danger: #e05c5c;
-    --card-bg: rgba(255,255,255,0.04);
-    --border: rgba(201,162,39,0.2);
-  }
+import React, { useState, useEffect } from 'react';
+import { Calendar, BookOpen, Clock, Play, Pause, RotateCcw, CheckCircle, Wand2, Plus, X } from 'lucide-react';
 
-  * { box-sizing: border-box; margin: 0; padding: 0; }
+// ==========================================
+// 1. Timer Component (จากที่คุณออกแบบไว้ นำมาปรับ UI เล็กน้อย)
+// ==========================================
+const StudyTask = ({ task, onComplete }) => {
+  const [seconds, setSeconds] = useState(task.duration * 60);
+  const [isActive, setIsActive] = useState(false);
 
-  body {
-    background: var(--navy);
-    color: var(--text);
-    font-family: 'Sarabun', sans-serif;
-    min-height: 100vh;
-    overflow-x: hidden;
-  }
+  useEffect(() => {
+    let interval = null;
+    if (isActive && seconds > 0) {
+      interval = setInterval(() => {
+        setSeconds((seconds) => seconds - 1);
+      }, 1000);
+    } else if (seconds === 0 && isActive) {
+      setIsActive(false);
+      alert(`🎉 จบช่วงเวลาเรียน: ${task.title} แล้ว!`);
+      onComplete(task.id);
+      clearInterval(interval);
+    }
+    return () => clearInterval(interval);
+  }, [isActive, seconds, task.title, onComplete]);
 
-  /* Background pattern */
-  body::before {
-    content: '';
-    position: fixed;
-    inset: 0;
-    background:
-      radial-gradient(ellipse 80% 50% at 20% 10%, rgba(26,58,107,0.5) 0%, transparent 60%),
-      radial-gradient(ellipse 60% 40% at 80% 80%, rgba(201,162,39,0.08) 0%, transparent 60%);
-    pointer-events: none;
-    z-index: 0;
-  }
+  const formatTime = (s) => {
+    const mins = Math.floor(s / 60);
+    const secs = s % 60;
+    return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
+  };
 
-  .container { max-width: 1100px; margin: 0 auto; padding: 0 20px; position: relative; z-index: 1; }
+  return (
+    <div className={`p-4 rounded-xl shadow-sm border mb-3 transition-all ${task.status === 'Done' ? 'bg-green-50 border-green-200' : 'bg-white border-slate-200'}`}>
+      <div className="flex justify-between items-center">
+        <div>
+          <h3 className={`font-bold ${task.status === 'Done' ? 'text-green-700 line-through' : 'text-slate-700'}`}>
+            {task.title}
+          </h3>
+          <div className="flex items-center gap-2 mt-1">
+            <Clock size={14} className="text-slate-400" />
+            <span className="text-sm text-slate-500">Day {task.day || '-'} • {task.duration} mins</span>
+          </div>
+        </div>
+        
+        {task.status !== 'Done' ? (
+          <div className="flex items-center gap-4">
+            <p className="text-2xl font-mono text-blue-600 font-semibold">{formatTime(seconds)}</p>
+            <div className="flex gap-2">
+              <button 
+                onClick={() => setIsActive(!isActive)}
+                className={`p-2 rounded-full transition-colors ${isActive ? 'bg-amber-100 text-amber-600 hover:bg-amber-200' : 'bg-blue-100 text-blue-600 hover:bg-blue-200'}`}
+              >
+                {isActive ? <Pause size={20} /> : <Play size={20} />}
+              </button>
+              <button 
+                onClick={() => {setIsActive(false); setSeconds(task.duration * 60);}}
+                className="p-2 bg-slate-100 text-slate-400 rounded-full hover:bg-slate-200"
+              >
+                <RotateCcw size={20} />
+              </button>
+              <button 
+                onClick={() => onComplete(task.id)}
+                className="p-2 bg-green-100 text-green-600 rounded-full hover:bg-green-200"
+              >
+                <CheckCircle size={20} />
+              </button>
+            </div>
+          </div>
+        ) : (
+          <div className="text-green-600 font-bold flex items-center gap-2">
+            <CheckCircle size={24} /> Completed
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
 
-  /* ===== HEADER ===== */
-  header {
-    padding: 40px 20px 0;
-    text-align: center;
-    position: relative;
-  }
+// ==========================================
+// 2. AI Planner Modal Component
+// ==========================================
+const AiPlannerModal = ({ isOpen, onClose, onConfirm }) => {
+  const [prompt, setPrompt] = useState('');
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [draftPlan, setDraftPlan] = useState(null);
 
-  .logo-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 10px;
-    background: rgba(201,162,39,0.12);
-    border: 1px solid var(--border);
-    border-radius: 50px;
-    padding: 6px 18px;
-    font-size: 13px;
-    color: var(--gold-light);
-    letter-spacing: 1px;
-    margin-bottom: 20px;
-    animation: fadeDown 0.6s ease both;
-  }
+  if (!isOpen) return null;
 
-  .logo-badge svg { width: 14px; height: 14px; }
+  const handleGenerate = () => {
+    setIsGenerating(true);
+    // Mockup API Call การทำงานของ AI
+    setTimeout(() => {
+      const mockResponse = [
+        { id: 'ai-1', title: 'ปูพื้นฐานแคลคูลัส (ลิมิตและความต่อเนื่อง)', day: 1, duration: 60, status: 'Todo' },
+        { id: 'ai-2', title: 'ฝึกทำโจทย์ลิมิต 20 ข้อ', day: 2, duration: 90, status: 'Todo' },
+        { id: 'ai-3', title: 'อนุพันธ์ของฟังก์ชัน (Derivatives)', day: 3, duration: 60, status: 'Todo' },
+      ];
+      setDraftPlan(mockResponse);
+      setIsGenerating(false);
+    }, 1500);
+  };
 
-  h1 {
-    font-family: 'Playfair Display', serif;
-    font-size: clamp(2rem, 5vw, 3.2rem);
-    color: var(--white);
-    line-height: 1.15;
-    animation: fadeDown 0.7s 0.1s ease both;
-  }
+  return (
+    <div className="fixed inset-0 bg-slate-900/50 flex items-center justify-center z-50">
+      <div className="bg-white rounded-2xl p-6 w-full max-w-2xl shadow-xl">
+        <div className="flex justify-between items-center mb-4">
+          <h2 className="text-xl font-bold text-slate-800 flex items-center gap-2">
+            <Wand2 className="text-blue-500" /> AI Long-term Planner
+          </h2>
+          <button onClick={onClose} className="text-slate-400 hover:text-slate-600"><X size={24} /></button>
+        </div>
 
-  h1 em {
-    font-style: italic;
-    color: var(--gold-light);
-  }
+        {!draftPlan ? (
+          <div className="space-y-4">
+            <label className="block text-sm font-medium text-slate-600">เป้าหมายการเรียนของคุณคืออะไร?</label>
+            <textarea 
+              className="w-full p-3 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-200 focus:border-blue-400 outline-none"
+              rows="4"
+              placeholder="เช่น สอนแคลคูลัส 1 ตั้งแต่เริ่มจนสอบใน 14 วัน โดยเน้นทำโจทย์..."
+              value={prompt}
+              onChange={(e) => setPrompt(e.target.value)}
+            ></textarea>
+            <button 
+              onClick={handleGenerate}
+              disabled={!prompt || isGenerating}
+              className="w-full py-3 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 disabled:bg-slate-300 flex justify-center items-center gap-2 transition-colors"
+            >
+              {isGenerating ? 'กำลังวิเคราะห์แผนการเรียน...' : 'Generate Study Plan'}
+            </button>
+          </div>
+        ) : (
+          <div className="space-y-4 animate-in fade-in slide-in-from-bottom-4">
+            <h3 className="font-semibold text-slate-700">Draft Schedule (รอยืนยัน)</h3>
+            <div className="max-h-60 overflow-y-auto space-y-2 pr-2">
+              {draftPlan.map((task) => (
+                <div key={task.id} className="p-3 bg-slate-50 border border-slate-200 rounded-lg flex justify-between items-center">
+                  <div>
+                    <span className="text-xs font-bold text-blue-600 bg-blue-100 px-2 py-1 rounded-full mr-2">Day {task.day}</span>
+                    <span className="text-slate-700">{task.title}</span>
+                  </div>
+                  <span className="text-sm text-slate-500">{task.duration} นาที</span>
+                </div>
+              ))}
+            </div>
+            <div className="flex gap-3 pt-4 border-t border-slate-100">
+              <button 
+                onClick={() => setDraftPlan(null)}
+                className="flex-1 py-2 bg-slate-100 text-slate-600 rounded-lg font-medium hover:bg-slate-200"
+              >
+                ปรับแก้ (Edit)
+              </button>
+              <button 
+                onClick={() => { onConfirm(draftPlan); onClose(); setDraftPlan(null); setPrompt(''); }}
+                className="flex-1 py-2 bg-green-600 text-white rounded-lg font-medium hover:bg-green-700"
+              >
+                ยืนยันลงปฏิทิน (Confirm)
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
 
-  .subtitle {
-    margin-top: 10px;
-    color: var(--muted);
-    font-size: 15px;
-    animation: fadeDown 0.7s 0.2s ease both;
-  }
+// ==========================================
+// 3. Main Dashboard (App Structure & UI)
+// ==========================================
+export default function StudyPlannerApp() {
+  const [tasks, setTasks] = useState([
+    { id: '1', title: 'อ่านหนังสือชีววิทยา บทที่ 1', day: 1, duration: 45, status: 'Todo' }
+  ]);
+  const [isAiModalOpen, setIsAiModalOpen] = useState(false);
 
-  /* ===== COUNTDOWN ===== */
-  .countdown-section {
-    margin: 36px auto 0;
-    max-width: 560px;
-    animation: fadeDown 0.7s 0.3s ease both;
-  }
+  const handleCompleteTask = (id) => {
+    setTasks(tasks.map(t => t.id === id ? { ...t, status: 'Done' } : t));
+  };
 
-  .countdown-label {
-    text-align: center;
-    font-size: 12px;
-    letter-spacing: 2px;
-    color: var(--gold);
-    text-transform: uppercase;
-    margin-bottom: 12px;
-  }
+  const handleAddAiTasks = (newTasks) => {
+    setTasks([...tasks, ...newTasks]);
+  };
 
-  .countdown-boxes {
-    display: flex;
-    justify-content: center;
-    gap: 12px;
-  }
+  return (
+    <div className="flex h-screen bg-slate-50 font-sans">
+      
+      {/* Sidebar */}
+      <aside className="w-64 bg-white border-r border-slate-200 flex flex-col">
+        <div className="p-6">
+          <h1 className="text-xl font-bold text-slate-800 flex items-center gap-2">
+            <BookOpen className="text-blue-600" /> StudySpace
+          </h1>
+        </div>
+        <nav className="flex-1 px-4 space-y-2">
+          <a href="#" className="flex items-center gap-3 px-4 py-3 bg-blue-50 text-blue-700 rounded-xl font-medium">
+            <Calendar size={20} /> Dashboard
+          </a>
+          <a href="#" className="flex items-center gap-3 px-4 py-3 text-slate-600 hover:bg-slate-50 rounded-xl font-medium transition-colors">
+            <FileText size={20} /> Learning Hub
+          </a>
+          <a href="#" className="flex items-center gap-3 px-4 py-3 text-slate-600 hover:bg-slate-50 rounded-xl font-medium transition-colors">
+            <Clock size={20} /> Active Session
+          </a>
+        </nav>
+      </aside>
 
-  .cd-box {
-    background: var(--card-bg);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 16px 20px;
-    text-align: center;
-    min-width: 80px;
-    backdrop-filter: blur(10px);
-  
+      {/* Main Content */}
+      <main className="flex-1 p-8 overflow-y-auto">
+        <header className="flex justify-between items-center mb-8">
+          <div>
+            <h2 className="text-2xl font-bold text-slate-800">Today's Schedule</h2>
+            <p className="text-slate-500 mt-1">จัดการเวลาเรียนของคุณอย่างมีประสิทธิภาพ</p>
+          </div>
+          <div className="flex gap-3">
+            <button className="px-4 py-2 bg-white border border-slate-200 text-slate-700 rounded-lg font-medium hover:bg-slate-50 flex items-center gap-2 shadow-sm">
+              <Plus size={18} /> Add Task
+            </button>
+            <button 
+              onClick={() => setIsAiModalOpen(true)}
+              className="px-4 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 flex items-center gap-2 shadow-sm transition-colors"
+            >
+              <Wand2 size={18} /> AI Planner
+            </button>
+          </div>
+        </header>
+
+        {/* Task List / Active Sessions */}
+        <div className="max-w-3xl">
+          <h3 className="text-lg font-semibold text-slate-700 mb-4">Active Tasks</h3>
+          {tasks.length === 0 ? (
+            <div className="text-center py-10 text-slate-400 bg-white rounded-xl border border-dashed border-slate-300">
+              ยังไม่มีแผนการเรียน กดปุ่ม AI Planner เพื่อสร้างตารางเรียนได้เลย!
+            </div>
+          ) : (
+            tasks.map(task => (
+              <StudyTask key={task.id} task={task} onComplete={handleCompleteTask} />
+            ))
+          )}
+        </div>
+      </main>
+
+      {/* Modals */}
+      <AiPlannerModal 
+        isOpen={isAiModalOpen} 
+        onClose={() => setIsAiModalOpen(false)} 
+        onConfirm={handleAddAiTasks} 
+      />
+    </div>
+  );
+}
