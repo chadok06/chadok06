@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ตารางลุยเคมีพี่ต้า (Mission สอวน.)</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;600&display=swap');
+        
+        body { 
+            font-family: 'Prompt', sans-serif; 
+            background-color: #f0f2f5; 
+            color: #333; 
+            margin: 0; 
+            padding: 20px; 
+        }
+        h1 { 
+            text-align: center; 
+            color: #1a252f; 
+            margin-bottom: 30px;
+        }
+        .container { 
+            max-width: 700px; 
+            margin: auto; 
+            display: flex; 
+            flex-direction: column; 
+            gap: 15px; 
+        }
+        .card { 
+            background: white; 
+            padding: 20px; 
+            border-radius: 12px; 
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05); 
+            border-left: 6px solid #3498db; /* สีน้ำเงินวันธรรมดา */
+            transition: transform 0.2s;
+        }
+        .card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.1);
+        }
+        .card.off { 
+            border-left-color: #e74c3c; /* สีแดงวันหยุด */
+            background: #fffafa; 
+        }
+        .card.weekend { 
+            border-left-color: #f39c12; /* สีส้มวันเสาร์-อาทิตย์ */
+        }
+        .day { 
+            font-size: 1.3em; 
+            font-weight: 600; 
+            margin-bottom: 5px; 
+            color: #2c3e50; 
+        }
+        .time { 
+            color: #7f8c8d; 
+            font-size: 0.95em; 
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .task { 
+            font-size: 1em; 
+            line-height: 1.5;
+        }
+        ul {
+            margin: 0;
+            padding-left: 20px;
+        }
+        .badge { 
+            display: inline-block; 
+            padding: 4px 10px; 
+            border-radius: 20px; 
+            font-size: 0.8em; 
+            font-weight: 600; 
+            margin-left: 10px;
+        }
+        .badge-speed { 
+            background: #ffeaa7; 
+            color: #d35400; 
+        }
+        .badge-normal { 
+            background: #d4efdf; 
+            color: #27ae60; 
+        }
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+            color: #7f8c8d;
+            font-size: 0.9em;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>🧪 ตารางลุยเคมีพี่ต้า (Mission สอวน.) 🧬</h1>
+    
+    <div class="container">
+        <div class="card">
+            <div class="day">วันจันทร์</div>
+            <div class="time">🕒 19:00 - 21:30 น. (2.5 ชม.)</div>
+            <div class="task">
+                <ul>
+                    <li>เรียน 2 คลิป <span class="badge badge-speed">⚡ สปีด x1.25</span></li>
+                    <li>ทริค: ดูให้จบภายในเวลา แล้วรีบพัก!</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="day">วันอังคาร</div>
+            <div class="time">🕒 19:00 - 21:30 น. (2.5 ชม.)</div>
+            <div class="task">
+                <ul>
+                    <li>เรียน 2 คลิป <span class="badge badge-speed">⚡ สปีด x1.25</span></li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="card off">
+            <div class="day">วันพุธ (Day Off)</div>
+            <div class="time">❌ ไม่มีเรียนเคมี</div>
+            <div class="task">
+                <ul>
+                    <li>พักสมอง หรือ ปั่นการบ้านโรงเรียนให้ยับ!</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="day">วันพฤหัสบดี</div>
+            <div class="time">🕒 19:00 - 21:30 น. (2.5 ชม.)</div>
+            <div class="task">
+                <ul>
+                    <li>เรียน 2 คลิป <span class="badge badge-speed">⚡ สปีด x1.25</span></li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="card off">
+            <div class="day">วันศุกร์ (Day Off)</div>
+            <div class="time">❌ ไม่มีเรียนเคมี</div>
+            <div class="task">
+                <ul>
+                    <li>ชาร์จแบตให้เต็มที่ ไปเที่ยว เล่นเกม พักผ่อน!</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="card weekend">
+            <div class="day">วันเสาร์</div>
+            <div class="time">🕒 18:00 - 21:00 น. (3 ชม.)</div>
+            <div class="task">
+                <ul>
+                    <li>เรียน 2 คลิป <span class="badge badge-normal">✅ สปีดปกติ</span></li>
+                    <li>ทริค: เก็บรายละเอียด จดเนื้อหาให้ครบ</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="card weekend">
+            <div class="day">วันอาทิตย์ (จัดหนัก 2 ยก)</div>
+            <div class="time">🕒 15:00 - 16:00 น. | 18:00 - 21:00 น. (รวม 4 ชม.)</div>
+            <div class="task">
+                <ul>
+                    <li><strong>ช่วงบ่าย (1 ชม.):</strong> นั่งทำการบ้าน / ทวนโจทย์ 8 คลิปของสัปดาห์นี้ (ห้ามขึ้นคลิปใหม่)</li>
+                    <li><strong>ช่วงค่ำ (3 ชม.):</strong> เรียน 2 คลิปสุดท้าย <span class="badge badge-normal">✅ สปีดปกติ</span></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="footer">
+        "วินัยล้วนๆ มึงทำได้แน่นอน ลุย! จาก เจม"
+    </div>
+
+</body>
+</html>
