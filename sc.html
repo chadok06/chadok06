@@ -3,176 +3,449 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ตารางลุยเคมีพี่ต้า (Mission สอวน.)</title>
+    <title>ปฏิทินลุยเคมีพี่ต้า (Mission สอวน.)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;600&display=swap');
-        
-        body { 
-            font-family: 'Prompt', sans-serif; 
-            background-color: #f0f2f5; 
-            color: #333; 
-            margin: 0; 
-            padding: 20px; 
+        body { font-family: 'Prompt', sans-serif; background-color: #f8fafc; }
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, minmax(0, 1fr));
+            gap: 0.5rem;
         }
-        h1 { 
-            text-align: center; 
-            color: #1a252f; 
-            margin-bottom: 30px;
-        }
-        .container { 
-            max-width: 700px; 
-            margin: auto; 
-            display: flex; 
-            flex-direction: column; 
-            gap: 15px; 
-        }
-        .card { 
-            background: white; 
-            padding: 20px; 
-            border-radius: 12px; 
-            box-shadow: 0 4px 6px rgba(0,0,0,0.05); 
-            border-left: 6px solid #3498db; /* สีน้ำเงินวันธรรมดา */
-            transition: transform 0.2s;
-        }
-        .card:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 6px 12px rgba(0,0,0,0.1);
-        }
-        .card.off { 
-            border-left-color: #e74c3c; /* สีแดงวันหยุด */
-            background: #fffafa; 
-        }
-        .card.weekend { 
-            border-left-color: #f39c12; /* สีส้มวันเสาร์-อาทิตย์ */
-        }
-        .day { 
-            font-size: 1.3em; 
-            font-weight: 600; 
-            margin-bottom: 5px; 
-            color: #2c3e50; 
-        }
-        .time { 
-            color: #7f8c8d; 
-            font-size: 0.95em; 
-            margin-bottom: 12px;
-            display: flex;
-            align-items: center;
-            gap: 5px;
-        }
-        .task { 
-            font-size: 1em; 
-            line-height: 1.5;
-        }
-        ul {
-            margin: 0;
-            padding-left: 20px;
-        }
-        .badge { 
-            display: inline-block; 
-            padding: 4px 10px; 
-            border-radius: 20px; 
-            font-size: 0.8em; 
-            font-weight: 600; 
-            margin-left: 10px;
-        }
-        .badge-speed { 
-            background: #ffeaa7; 
-            color: #d35400; 
-        }
-        .badge-normal { 
-            background: #d4efdf; 
-            color: #27ae60; 
-        }
-        .footer {
+        .day-header {
             text-align: center;
-            margin-top: 30px;
-            color: #7f8c8d;
-            font-size: 0.9em;
+            font-weight: 600;
+            padding: 0.5rem;
+            background: #1e293b;
+            color: white;
+            border-radius: 0.5rem;
+            font-size: 0.875rem;
+        }
+        .calendar-cell {
+            min-height: 120px;
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 0.5rem;
+            padding: 0.5rem;
+            display: flex;
+            flex-direction: column;
+            transition: all 0.2s;
+        }
+        .calendar-cell:hover {
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            transform: translateY(-2px);
+            border-color: #cbd5e1;
+        }
+        .cell-date {
+            font-weight: 700;
+            font-size: 1.1rem;
+            margin-bottom: 0.25rem;
+        }
+        .empty-cell {
+            background: transparent;
+            border: none;
+        }
+        .today-highlight {
+            border: 2px solid #3b82f6;
+            background: #eff6ff;
+            box-shadow: 0 0 10px rgba(59, 130, 246, 0.2);
+        }
+        
+        /* Status Colors */
+        .status-study { background-color: #dbeafe; color: #1e40af; border-left: 3px solid #3b82f6; }
+        .status-off { background-color: #fef2f2; color: #991b1b; border-left: 3px solid #ef4444; }
+        .status-weekend { background-color: #d1fae5; color: #065f46; border-left: 3px solid #10b981; }
+        .status-mock { background-color: #f3e8ff; color: #6b21a8; border-left: 3px solid #a855f7; }
+        .status-exam { background-color: #fef08a; color: #b45309; border-left: 4px solid #f59e0b; animation: pulse 2s infinite; }
+        .status-other { background-color: #f3f4f6; color: #374151; border-left: 3px solid #6b7280; }
+        
+        .task-badge {
+            font-size: 0.75rem;
+            padding: 0.4rem;
+            border-radius: 0.35rem;
+            margin-top: 0.25rem;
+            line-height: 1.3;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .cell-completed {
+            background-color: #f0fdf4 !important;
+            border-color: #86efac !important;
+            opacity: 0.85;
+        }
+
+        .checkbox-wrapper {
+            margin-top: auto;
+            padding-top: 0.5rem;
+            border-top: 1px dashed rgba(0,0,0,0.1);
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.8; }
+        }
+
+        /* Checkbox styling */
+        .custom-checkbox {
+            width: 1rem;
+            height: 1rem;
+            cursor: pointer;
+            border-radius: 0.25rem;
+            accent-color: #16a34a;
         }
     </style>
 </head>
-<body>
-
-    <h1>🧪 ตารางลุยเคมีพี่ต้า (Mission สอวน.) 🧬</h1>
+<body class="p-2 md:p-6 text-slate-800">
     
-    <div class="container">
-        <div class="card">
-            <div class="day">วันจันทร์</div>
-            <div class="time">🕒 19:00 - 21:30 น. (2.5 ชม.)</div>
-            <div class="task">
-                <ul>
-                    <li>เรียน 2 คลิป <span class="badge badge-speed">⚡ สปีด x1.25</span></li>
-                    <li>ทริค: ดูให้จบภายในเวลา แล้วรีบพัก!</li>
-                </ul>
+    <div class="max-w-6xl mx-auto">
+        <header class="text-center mb-6 pt-4 bg-white p-6 rounded-2xl shadow-sm border border-slate-100 relative overflow-hidden">
+            <div class="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500"></div>
+            <h1 class="text-2xl md:text-4xl font-bold text-slate-900 mb-2 flex items-center justify-center gap-2">
+                <span>🗓️</span> แผนลุยเคมีพี่ต้า (Real-time) <span>🔥</span>
+            </h1>
+            <p class="text-sm md:text-base text-slate-600 bg-slate-100 inline-block px-4 py-1 rounded-full font-medium">
+                เป้าหมาย: จบคอร์ส ในวันที่ 26 ก.ค. 2026!
+            </p>
+            
+            <!-- Auth Status System -->
+            <div id="auth-container" class="mt-4 inline-flex items-center gap-2 px-3 py-1.5 bg-blue-50 text-blue-700 text-xs md:text-sm font-semibold rounded-lg border border-blue-100 transition-all">
+                <svg class="animate-spin -ml-1 mr-1 h-4 w-4 text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                <span id="auth-status">กำลังเชื่อมต่อบัญชี Cloud Save...</span>
+            </div>
+            
+            <div id="current-time" class="mt-3 text-xs md:text-sm font-semibold text-slate-500"></div>
+        </header>
+
+        <div class="bg-white p-4 md:p-6 rounded-2xl shadow-sm border border-slate-200">
+            <!-- Calendar Controls -->
+            <div class="flex justify-between items-center mb-6">
+                <button onclick="prevMonth()" class="px-4 py-2 bg-slate-100 hover:bg-blue-100 hover:text-blue-700 rounded-lg transition-colors text-slate-700 font-medium text-sm md:text-base">
+                    ◀ เดือนที่แล้ว
+                </button>
+                <h2 id="month-display" class="text-xl md:text-2xl font-bold text-slate-800">เดือน ปี</h2>
+                <button onclick="nextMonth()" class="px-4 py-2 bg-slate-100 hover:bg-blue-100 hover:text-blue-700 rounded-lg transition-colors text-slate-700 font-medium text-sm md:text-base">
+                    เดือนหน้า ▶
+                </button>
+            </div>
+
+            <!-- Calendar Grid -->
+            <div class="overflow-x-auto pb-4">
+                <div class="min-w-[800px]">
+                    <div class="calendar-grid mb-2">
+                        <div class="day-header bg-red-500">อาทิตย์</div>
+                        <div class="day-header bg-yellow-500 text-slate-800">จันทร์</div>
+                        <div class="day-header bg-pink-500">อังคาร</div>
+                        <div class="day-header bg-green-500">พุธ</div>
+                        <div class="day-header bg-orange-500">พฤหัสบดี</div>
+                        <div class="day-header bg-blue-500">ศุกร์</div>
+                        <div class="day-header bg-purple-500">เสาร์</div>
+                    </div>
+                    <div id="calendar-body" class="calendar-grid">
+                        <!-- JS จะเสกปฏิทินลงตรงนี้ -->
+                    </div>
+                </div>
             </div>
         </div>
 
-        <div class="card">
-            <div class="day">วันอังคาร</div>
-            <div class="time">🕒 19:00 - 21:30 น. (2.5 ชม.)</div>
-            <div class="task">
-                <ul>
-                    <li>เรียน 2 คลิป <span class="badge badge-speed">⚡ สปีด x1.25</span></li>
-                </ul>
-            </div>
-        </div>
-
-        <div class="card off">
-            <div class="day">วันพุธ (Day Off)</div>
-            <div class="time">❌ ไม่มีเรียนเคมี</div>
-            <div class="task">
-                <ul>
-                    <li>พักสมอง หรือ ปั่นการบ้านโรงเรียนให้ยับ!</li>
-                </ul>
-            </div>
-        </div>
-
-        <div class="card">
-            <div class="day">วันพฤหัสบดี</div>
-            <div class="time">🕒 19:00 - 21:30 น. (2.5 ชม.)</div>
-            <div class="task">
-                <ul>
-                    <li>เรียน 2 คลิป <span class="badge badge-speed">⚡ สปีด x1.25</span></li>
-                </ul>
-            </div>
-        </div>
-
-        <div class="card off">
-            <div class="day">วันศุกร์ (Day Off)</div>
-            <div class="time">❌ ไม่มีเรียนเคมี</div>
-            <div class="task">
-                <ul>
-                    <li>ชาร์จแบตให้เต็มที่ ไปเที่ยว เล่นเกม พักผ่อน!</li>
-                </ul>
-            </div>
-        </div>
-
-        <div class="card weekend">
-            <div class="day">วันเสาร์</div>
-            <div class="time">🕒 18:00 - 21:00 น. (3 ชม.)</div>
-            <div class="task">
-                <ul>
-                    <li>เรียน 2 คลิป <span class="badge badge-normal">✅ สปีดปกติ</span></li>
-                    <li>ทริค: เก็บรายละเอียด จดเนื้อหาให้ครบ</li>
-                </ul>
-            </div>
-        </div>
-
-        <div class="card weekend">
-            <div class="day">วันอาทิตย์ (จัดหนัก 2 ยก)</div>
-            <div class="time">🕒 15:00 - 16:00 น. | 18:00 - 21:00 น. (รวม 4 ชม.)</div>
-            <div class="task">
-                <ul>
-                    <li><strong>ช่วงบ่าย (1 ชม.):</strong> นั่งทำการบ้าน / ทวนโจทย์ 8 คลิปของสัปดาห์นี้ (ห้ามขึ้นคลิปใหม่)</li>
-                    <li><strong>ช่วงค่ำ (3 ชม.):</strong> เรียน 2 คลิปสุดท้าย <span class="badge badge-normal">✅ สปีดปกติ</span></li>
-                </ul>
-            </div>
-        </div>
+        <footer class="text-center text-slate-500 text-xs md:text-sm mt-8 pb-8">
+            <p>"ระบบจดจำบัญชีทำเสร็จแล้ว ติ๊กถูกได้เลยมันจะเซฟเอง ลุยยย!"<br>- เจม -</p>
+        </footer>
     </div>
 
-    <div class="footer">
-        "วินัยล้วนๆ มึงทำได้แน่นอน ลุย! จาก เจม"
-    </div>
+    <!-- Script แบบ Module เพื่อเชื่อมระบบ Firebase Cloud Save -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInWithCustomToken, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
+        // ตัวแปรระบบต่างๆ
+        let currentMonth = 4; // พฤษภาคม
+        let currentYear = 2026;
+        let db, auth, currentUser;
+        let checkedDates = []; // เก็บวันที่เรียนแล้ว
+        let unsubscribeProgress = null;
+
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+        const monthNames = ["มกราคม", "กุมภาพันธ์", "มีนาคม", "เมษายน", "พฤษภาคม", "มิถุนายน", "กรกฎาคม", "สิงหาคม", "กันยายน", "ตุลาคม", "พฤศจิกายน", "ธันวาคม"];
+
+        // --- ระบบเตรียมข้อมูลแผนการเรียน ---
+        const sessionDetails = [
+            "ปริมาณสารฯ (1-2)", "ปริมาณสารฯ (3-4)", "ปริมาณสารฯ (5-6)", "ปริมาณสารฯ (7-8)",
+            "ปริมาณสารฯ (9-10)", "ปริมาณสารฯ (11-12)", "ปริมาณสารฯ (13-14)", "ปริมาณสารฯ (15-16)",
+            "ปริมาณสารฯ (17-18)", "ปริมาณสารฯ (19-20)", "ปริมาณสารฯ (21-22)", "ปริมาณสารฯ (23-24)",
+            "ปริมาณสารฯ (25) + แก๊ส (1)",
+            "แก๊ส (2-3)", "แก๊ส (4-5)", "แก๊ส (6-7)",
+            "แก๊ส (8) + อัตราฯ (1)",
+            "อัตราฯ (2-3)", "อัตราฯ (4-5)", "อัตราฯ (6-7)",
+            "อัตราฯ (8) + สมดุลเคมี (1)",
+            "สมดุลเคมี (2-3)", "สมดุลเคมี (4-5)", "สมดุลเคมี (6-7)",
+            "สมดุลเคมี (8-9)", "สมดุลเคมี (10-11)", "สมดุลเคมี (12-13)",
+            "สมดุลเคมี (14) + ปลอดภัย (1)",
+            "ปลอดภัย (2-3)",
+            "UP อะตอม (1-2)",
+            "UP อะตอม (3) + UP ตารางธาตุ (1)",
+            "UP ตารางธาตุ (2-3)", "UP ตารางธาตุ (4-5)",
+            "UP พันธะ (1-2)", "UP พันธะ (3-4)", "UP พันธะ (5-6)",
+            "UP พันธะ (7) + UP คำนวณ (1)",
+            "UP คำนวณ (2-3)", "UP คำนวณ (4-5)", "UP คำนวณ (6-7)", "UP คำนวณ (8-9)",
+            "UP คำนวณ (10-11)", "UP คำนวณ (12-13)", "UP คำนวณ (14-15)",
+            "UP คำนวณ (16) 🎉 จบคอร์ส!"
+        ];
+
+        const exactSchedule = {};
+        
+        // บันทึกเป้าหมายวันนี้
+        exactSchedule['2026-4-24'] = { 
+            type: 'study', 
+            text: '🔥 ลุยคลิปที่เหลือ บท 3 (พันธะ) จบ!', 
+            speed: 'ใจมึงมันได้ว่ะ ลุยยยย!' 
+        };
+
+        let d = new Date(2026, 4, 25);
+        let sessionIndex = 0;
+
+        // เฟส 1: สร้างตาราง
+        while(sessionIndex < sessionDetails.length) {
+            let dayOfWeek = d.getDay();
+            let dateKey = `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`;
+
+            if(dayOfWeek === 3) {
+                // วันพุธ - เรียนเลข
+                exactSchedule[dateKey] = { type: 'other_class', text: '📐 19.00-21.00<br>ลุยพิเศษเลข', speed: 'พักเคมีชั่วคราว' };
+            } else if(dayOfWeek === 5) {
+                // วันศุกร์ - เรียนอังกฤษ
+                exactSchedule[dateKey] = { type: 'other_class', text: '🇬🇧 19.00-21.00<br>ลุยพิเศษอังกฤษ', speed: 'พักเคมีชั่วคราว' };
+            } else {
+                let speedText = (dayOfWeek === 1 || dayOfWeek === 2 || dayOfWeek === 4) ? "⚡ (สปีด x1.25)" : "✅ (สปีดปกติ)";
+                let extraText = (dayOfWeek === 0) ? "<div class='text-red-600 font-bold mb-1 border-b border-red-200 pb-1'>🕒 บ่าย: ทวนโจทย์อาทิตย์นี้</div>🕒 ค่ำ: " : "🕒 19.00: ";
+                if (dayOfWeek === 6) extraText = "🕒 18.00: ";
+                
+                exactSchedule[dateKey] = { 
+                    type: (dayOfWeek === 0 || dayOfWeek === 6) ? 'weekend' : 'study', 
+                    text: `${extraText}${sessionDetails[sessionIndex]}`, 
+                    speed: speedText 
+                };
+                sessionIndex++;
+            }
+            d.setDate(d.getDate() + 1);
+        }
+
+        // เฟส 2: ตะลุยโจทย์ Mock Test
+        let examDate = new Date(2026, 7, 23); 
+        while(d <= examDate) {
+            let dayOfWeek = d.getDay();
+            let dateKey = `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`;
+            
+            if (d.getTime() === examDate.getTime()) {
+                exactSchedule[dateKey] = { type: 'exam', text: '🏆 วันสอบ สอวน. เคมี!', speed: 'ทำให้เต็มที่ โชคดีเว้ย!' };
+            } else if(dayOfWeek === 3) {
+                exactSchedule[dateKey] = { type: 'other_class', text: '📐 19.00-21.00<br>ลุยพิเศษเลข', speed: '' };
+            } else if (dayOfWeek === 5) {
+                exactSchedule[dateKey] = { type: 'other_class', text: '🇬🇧 19.00-21.00<br>ลุยพิเศษอังกฤษ', speed: '' };
+            } else {
+                exactSchedule[dateKey] = { type: 'mock', text: '📝 ทำ Mock Test / ทวนจุดอ่อน', speed: '⏱️ จับเวลาจริง 3 ชม.' };
+            }
+            d.setDate(d.getDate() + 1);
+        }
+
+        // --- ฟังก์ชันวาดปฏิทิน ---
+        window.renderCalendar = function(month, year) {
+            const firstDay = new Date(year, month, 1).getDay();
+            const daysInMonth = new Date(year, month + 1, 0).getDate();
+            const today = new Date();
+            
+            document.getElementById("month-display").innerText = `${monthNames[month]} ${year + 543}`;
+            const calendarBody = document.getElementById("calendar-body");
+            calendarBody.innerHTML = "";
+
+            // เติมช่องว่าง
+            for (let i = 0; i < firstDay; i++) {
+                const emptyCell = document.createElement("div");
+                emptyCell.className = "calendar-cell empty-cell";
+                calendarBody.appendChild(emptyCell);
+            }
+
+            // สร้างวันที่ในปฏิทิน
+            for (let day = 1; day <= daysInMonth; day++) {
+                const cell = document.createElement("div");
+                const dayOfWeek = new Date(year, month, day).getDay();
+                const dateKey = `${year}-${month}-${day}`;
+                const isToday = (day === today.getDate() && month === today.getMonth() && year === today.getFullYear());
+                
+                let cellClass = `calendar-cell ${isToday ? 'today-highlight' : ''}`;
+                cell.id = `cell-${dateKey}`; // ใส่ ID สำหรับอัปเดตสี
+
+                const rule = exactSchedule[dateKey] || { type: '', text: '', speed: '' };
+                
+                let statusClass = "";
+                if(rule.type === "study") statusClass = "status-study";
+                if(rule.type === "other_class") statusClass = "status-other";
+                if(rule.type === "weekend") statusClass = "status-weekend";
+                if(rule.type === "mock") statusClass = "status-mock";
+                if(rule.type === "exam") statusClass = "status-exam";
+
+                cell.className = cellClass;
+                
+                let todayBadge = isToday ? '<span class="text-[0.65rem] bg-blue-600 text-white px-2 py-0.5 rounded-full ml-1 animate-pulse align-middle">วันนี้</span>' : '';
+                
+                let contentHTML = '';
+                if(rule.text) {
+                    // สร้างปุ่ม Checkbox สำหรับวันที่มีงาน
+                    let checkboxHTML = '';
+                    if (['study', 'weekend', 'mock', 'exam', 'other_class'].includes(rule.type)) {
+                        const isChecked = checkedDates.includes(dateKey) ? 'checked' : '';
+                        checkboxHTML = `
+                            <div class="checkbox-wrapper">
+                                <label class="text-xs font-semibold cursor-pointer flex items-center gap-1.5 text-slate-600 hover:text-green-600 transition-colors">
+                                    <input type="checkbox" class="custom-checkbox progress-checkbox" data-date="${dateKey}" onchange="window.toggleProgress('${dateKey}', this.checked)" ${isChecked}>
+                                    ✅ เรียนแล้ว
+                                </label>
+                            </div>
+                        `;
+                    }
+
+                    contentHTML = `
+                        <div class="task-badge ${statusClass}">
+                            <div class="flex-grow">
+                                <div>${rule.text}</div>
+                                ${rule.speed ? `<div class="text-[0.65rem] opacity-80 mt-1 font-semibold">${rule.speed}</div>` : ''}
+                            </div>
+                            ${checkboxHTML}
+                        </div>
+                    `;
+                }
+
+                cell.innerHTML = `
+                    <div class="flex justify-between items-start">
+                        <span class="cell-date ${dayOfWeek === 0 ? 'text-red-500' : 'text-slate-700'}">${day} ${todayBadge}</span>
+                    </div>
+                    ${contentHTML}
+                `;
+                calendarBody.appendChild(cell);
+            }
+            
+            // อัปเดตสีหลังจากวาดปฏิทิน
+            applyProgressToUI();
+        }
+
+        window.prevMonth = function() {
+            currentMonth--;
+            if (currentMonth < 0) { currentMonth = 11; currentYear--; }
+            renderCalendar(currentMonth, currentYear);
+        }
+
+        window.nextMonth = function() {
+            currentMonth++;
+            if (currentMonth > 11) { currentMonth = 0; currentYear++; }
+            renderCalendar(currentMonth, currentYear);
+        }
+
+        // --- ระบบ Firebase Cloud Save ---
+        async function initFirebase() {
+            try {
+                const configStr = typeof __firebase_config !== 'undefined' ? __firebase_config : '{}';
+                if(configStr === '{}') throw new Error("No config");
+                
+                const firebaseConfig = JSON.parse(configStr);
+                const app = initializeApp(firebaseConfig);
+                auth = getAuth(app);
+                db = getFirestore(app);
+
+                // ระบบล็อกอินอิงจาก Canvas (มึงไม่ต้องกดล็อคอินเอง)
+                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                    await signInWithCustomToken(auth, __initial_auth_token);
+                } else {
+                    await signInAnonymously(auth);
+                }
+
+                onAuthStateChanged(auth, (user) => {
+                    if (user) {
+                        currentUser = user;
+                        const authStatus = document.getElementById('auth-status');
+                        authStatus.innerText = '✅ ผูกบัญชีและบันทึกข้อมูลอัตโนมัติแล้ว';
+                        authStatus.parentElement.classList.replace('bg-blue-50', 'bg-green-50');
+                        authStatus.parentElement.classList.replace('text-blue-700', 'text-green-700');
+                        authStatus.parentElement.classList.replace('border-blue-100', 'border-green-200');
+                        authStatus.parentElement.querySelector('svg').style.display = 'none';
+                        loadProgress(); // ดึงข้อมูลที่เคยเซฟไว้
+                    }
+                });
+            } catch (e) {
+                console.log("Firebase Init error (Offline mode)", e);
+                const authStatus = document.getElementById('auth-status');
+                authStatus.innerText = '⚠️ ทำงานโหมดออฟไลน์ (จะไม่บันทึกถ้าปิดหน้าเว็บ)';
+                authStatus.parentElement.querySelector('svg').style.display = 'none';
+            }
+        }
+
+        function loadProgress() {
+            if (!currentUser || !db) return;
+            // แก้ไข Path Reference ให้ถูกต้องและครบถ้วน (มี 6 ตำแหน่งเพื่ออ้างอิงเอกสาร)
+            const docRef = doc(db, 'artifacts', appId, 'users', currentUser.uid, 'progress_chem', 'data');
+            
+            unsubscribeProgress = onSnapshot(docRef, (docSnap) => {
+                if (docSnap.exists()) {
+                    checkedDates = docSnap.data().checkedDays || [];
+                } else {
+                    checkedDates = [];
+                }
+                applyProgressToUI();
+            }, (error) => {
+                console.error("Error fetching progress:", error);
+            });
+        }
+
+        function applyProgressToUI() {
+            document.querySelectorAll('.progress-checkbox').forEach(cb => {
+                const dateKey = cb.getAttribute('data-date');
+                const isChecked = checkedDates.includes(dateKey);
+                cb.checked = isChecked;
+                
+                const cell = document.getElementById(`cell-${dateKey}`);
+                if(cell) {
+                    if(isChecked) {
+                        cell.classList.add('cell-completed');
+                    } else {
+                        cell.classList.remove('cell-completed');
+                    }
+                }
+            });
+        }
+
+        window.toggleProgress = async function(dateKey, isChecked) {
+            // อัปเดตใน UI ทันทีเพื่อให้ดูสมูท
+            if (isChecked) {
+                if(!checkedDates.includes(dateKey)) checkedDates.push(dateKey);
+            } else {
+                checkedDates = checkedDates.filter(d => d !== dateKey);
+            }
+            applyProgressToUI();
+
+            // เซฟลง Cloud ถ้าล็อกอินแล้ว
+            if (!currentUser || !db) return; 
+            try {
+                // แก้ไข Path Reference ให้ถูกต้อง (มี 6 ตำแหน่งเพื่ออ้างอิงเอกสาร)
+                const docRef = doc(db, 'artifacts', appId, 'users', currentUser.uid, 'progress_chem', 'data');
+                await setDoc(docRef, { checkedDays: checkedDates }, { merge: true });
+            } catch(e) {
+                 console.error("Save error", e);
+            }
+        }
+
+        function updateClock() {
+            const now = new Date();
+            const timeString = now.toLocaleTimeString('th-TH');
+            document.getElementById('current-time').innerText = `อัปเดตเวลาปัจจุบัน: ${timeString}`;
+        }
+
+        // เริ่มโหลด
+        renderCalendar(currentMonth, currentYear);
+        setInterval(updateClock, 1000);
+        updateClock();
+        initFirebase();
+    </script>
 </body>
 </html>
